@@ -29,14 +29,28 @@ export default function SplashScreen() {
   }, [router]);
 
   return (
-    <View className="flex-1 bg-black items-center justify-center">
+    <View className="flex-1 items-center justify-center bg-[#0A192F]">
+      <View className="absolute w-full h-full opacity-10">
+        <Image
+          source={require("../assets/images/splash-icon.jpg")}
+          className="w-full h-full"
+          resizeMode="cover"
+          blurRadius={10}
+        />
+      </View>
       <Image
         source={require("../assets/images/splash-icon.jpg")}
-        className="w-80 h-80 mb-8"
-        resizeMode="contain"
+        style={{ width: 350, height: 350 }}
+        className="mb-12 rounded-full"
+        resizeMode="cover"
       />
 
-      <TextScramble text="Secure Notes" duration={2} speed={0.05} />
+      <TextScramble
+        text="Secure Notes"
+        duration={2}
+        speed={0.05}
+        className="text-4xl text-[#64FFDA]"
+      />
     </View>
   );
 }
