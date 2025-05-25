@@ -1,12 +1,17 @@
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
+import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
 import { MotiView } from "moti";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   Dimensions,
   Image,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   Text,
   TextInput,
@@ -18,21 +23,20 @@ import * as z from "zod";
 // Form validation schema
 const registerSchema = z
   .object({
-    username: z.string().min(3, "Username must be at least 3 characters"),
+    username: z.string().min(3, "Kullanıcı adı en az 3 karakter olmalı"),
     password: z
       .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-      .regex(/[0-9]/, "Password must contain at least one number")
-      .regex(
-        /[^A-Za-z0-9]/,
-        "Password must contain at least one special character"
-      ),
+      .min(8, "Şifre en az 8 karakter olmalı")
+      .regex(/[A-Z]/, "En az bir büyük harf içermeli")
+      .regex(/[a-z]/, "En az bir küçük harf içermeli")
+      .regex(/[0-9]/, "En az bir sayı içermeli")
+      .regex(/[^A-Za-z0-9]/, "En az bir özel karakter içermeli"),
     confirmPassword: z.string(),
+    securityQuestion: z.string().min(1, "Lütfen bir güvenlik sorusu seçin"),
+    securityAnswer: z.string().min(1, "Cevap zorunludur"),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
+    message: "Şifreler uyuşmuyor",
     path: ["confirmPassword"],
   });
 
@@ -41,6 +45,16 @@ type RegisterForm = z.infer<typeof registerSchema>;
 export default function RegisterScreen() {
   const router = useRouter();
   const screenHeight = Dimensions.get("window").height;
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const securityQuestions = [
+    "İlk evcil hayvanınızın adı nedir?",
+    "Annenizin kızlık soyadı nedir?",
+    "İlk gittiğiniz okulun adı nedir?",
+    "En sevdiğiniz öğretmenin adı nedir?",
+    "Doğduğunuz şehir neresidir?",
+  ];
 
   const {
     control,
@@ -52,6 +66,8 @@ export default function RegisterScreen() {
       username: "",
       password: "",
       confirmPassword: "",
+      securityQuestion: "",
+      securityAnswer: "",
     },
   });
 
@@ -59,121 +75,235 @@ export default function RegisterScreen() {
     try {
       await AsyncStorage.setItem("secure_user_pin", data.password);
       await AsyncStorage.setItem("secure_username", data.username);
+      await AsyncStorage.setItem("security_question", data.securityQuestion);
+      await AsyncStorage.setItem("security_answer", data.securityAnswer);
       router.push("/login");
     } catch (error) {
-      console.error("Error saving user data:", error);
+      console.error("Kayıt hatası:", error);
     }
   };
 
   return (
-    <ScrollView
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
       className="flex-1 bg-[#0A192F]"
-      contentContainerStyle={{
-        flexGrow: 1,
-        justifyContent: "center",
-        paddingHorizontal: 24,
-        paddingTop: screenHeight * 0.1, // 10% from top
-        paddingBottom: 40,
-      }}
     >
-      {/* Header */}
-      <View className="flex-row items-center mb-12">
-        <Image
-          source={require("../../assets/images/splash-icon.jpg")}
-          style={{ width: 60, height: 60 }}
-          className="rounded-full"
-          resizeMode="cover"
-        />
-        <View className="ml-4 flex-1">
-          <TextGenerateEffect
-            text="Register"
-            typingSpeed={100}
-            erasingSpeed={75}
-            delayBeforeErasing={2000}
-          />
-        </View>
-      </View>
-
-      {/* Form */}
-      <MotiView
-        from={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ type: "timing", duration: 800, delay: 300 }}
-        className="bg-[#112240] p-8 rounded-xl shadow-lg"
+      <ScrollView
+        contentContainerStyle={{
+          flexGrow: 1,
+          justifyContent: "center",
+          paddingHorizontal: 24,
+          paddingTop: screenHeight * 0.1,
+          paddingBottom: 40,
+        }}
+        keyboardShouldPersistTaps="handled"
       >
-        <View className="mb-8">
-          <Text className="text-[#64FFDA] mb-3 text-lg">Username</Text>
-          <Controller
-            control={control}
-            name="username"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                className="bg-[#1E3A8A] text-white p-4 rounded-lg border border-[#64FFDA]"
-                placeholder="Enter username"
-                placeholderTextColor="#f1f1f1"
-                value={value}
-                onChangeText={onChange}
-              />
-            )}
+        {/* Header */}
+        <View className="flex-row items-center mb-12">
+          <Image
+            source={require("../../assets/images/splash-icon.jpg")}
+            style={{ width: 60, height: 60 }}
+            className="rounded-full"
+            resizeMode="cover"
           />
-          {errors.username && (
-            <Text className="text-red-500 mt-2">{errors.username.message}</Text>
-          )}
+          <View className="ml-4 flex-1">
+            <TextGenerateEffect
+              text="Register"
+              typingSpeed={100}
+              erasingSpeed={75}
+              delayBeforeErasing={2000}
+            />
+          </View>
         </View>
 
-        <View className="mb-8">
-          <Text className="text-[#64FFDA] mb-3 text-lg">Password</Text>
-          <Controller
-            control={control}
-            name="password"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                className="bg-[#1E3A8A] text-white p-4 rounded-lg border border-[#64FFDA]"
-                placeholder="Enter password"
-                placeholderTextColor="#f1f1f1"
-                secureTextEntry
-                value={value}
-                onChangeText={onChange}
-              />
-            )}
-          />
-          {errors.password && (
-            <Text className="text-red-500 mt-2">{errors.password.message}</Text>
-          )}
-        </View>
-
-        <View className="mb-10">
-          <Text className="text-[#64FFDA] mb-3 text-lg">Confirm Password</Text>
-          <Controller
-            control={control}
-            name="confirmPassword"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                className="bg-[#1E3A8A] text-white p-4 rounded-lg border border-[#64FFDA]"
-                placeholder="Confirm password"
-                placeholderTextColor="#f1f1f1"
-                secureTextEntry
-                value={value}
-                onChangeText={onChange}
-              />
-            )}
-          />
-          {errors.confirmPassword && (
-            <Text className="text-red-500 mt-2">
-              {errors.confirmPassword.message}
-            </Text>
-          )}
-        </View>
-
-        <TouchableOpacity
-          onPress={handleSubmit(onSubmit)}
-          className="bg-[#64FFDA] py-5 rounded-lg"
+        {/* Form */}
+        <MotiView
+          from={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: "timing", duration: 800, delay: 300 }}
+          className="bg-[#112240] p-8 rounded-xl shadow-lg"
         >
-          <Text className="text-[#0A192F] text-center font-bold text-lg">
-            Create Account
-          </Text>
-        </TouchableOpacity>
-      </MotiView>
-    </ScrollView>
+          {/* Username */}
+          <View className="mb-8">
+            <Text className="text-[#64FFDA] mb-3 text-lg">Kullanıcı Adı</Text>
+            <Controller
+              control={control}
+              name="username"
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  className="bg-[#1E3A8A] text-white p-4 rounded-lg border border-[#64FFDA]"
+                  placeholder="Kullanıcı adı giriniz"
+                  placeholderTextColor="#f1f1f1"
+                  value={value}
+                  onChangeText={onChange}
+                />
+              )}
+            />
+            {errors.username && (
+              <Text className="text-red-500 mt-2">
+                {errors.username.message}
+              </Text>
+            )}
+          </View>
+
+          {/* Password */}
+          <View className="mb-8">
+            <Text className="text-[#64FFDA] mb-3 text-lg">Şifre</Text>
+            <View className="relative">
+              <Controller
+                control={control}
+                name="password"
+                render={({ field: { onChange, value } }) => (
+                  <TextInput
+                    className="bg-[#1E3A8A] text-white p-4 rounded-lg border border-[#64FFDA] pr-12"
+                    placeholder="Şifrenizi girin"
+                    placeholderTextColor="#f1f1f1"
+                    secureTextEntry={!showPassword}
+                    value={value}
+                    onChangeText={onChange}
+                    autoCapitalize="none"
+                    style={{ color: "white" }}
+                    autoCorrect={false}
+                  />
+                )}
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword((prev) => !prev)}
+                className="absolute right-4 top-4"
+              >
+                <Ionicons
+                  name={showPassword ? "eye-off" : "eye"}
+                  size={24}
+                  color="#64FFDA"
+                />
+              </TouchableOpacity>
+            </View>
+            {errors.password && (
+              <Text className="text-red-500 mt-2">
+                {errors.password.message}
+              </Text>
+            )}
+          </View>
+
+          {/* Confirm Password */}
+          <View className="mb-8">
+            <Text className="text-[#64FFDA] mb-3 text-lg">Şifreyi Onayla</Text>
+            <View className="relative">
+              <Controller
+                control={control}
+                name="confirmPassword"
+                render={({ field: { onChange, value } }) => (
+                  <TextInput
+                    className="bg-[#1E3A8A] text-white p-4 rounded-lg border border-[#64FFDA] pr-12"
+                    placeholder="Şifreyi tekrar girin"
+                    placeholderTextColor="#f1f1f1"
+                    secureTextEntry={!showConfirmPassword}
+                    value={value}
+                    onChangeText={onChange}
+                    autoCapitalize="none"
+                    style={{ color: "white" }}
+                    autoCorrect={false}
+                  />
+                )}
+              />
+              <TouchableOpacity
+                onPress={() => setShowConfirmPassword((prev) => !prev)}
+                className="absolute right-4 top-4"
+              >
+                <Ionicons
+                  name={showConfirmPassword ? "eye-off" : "eye"}
+                  size={24}
+                  color="#64FFDA"
+                />
+              </TouchableOpacity>
+            </View>
+            {errors.confirmPassword && (
+              <Text className="text-red-500 mt-2">
+                {errors.confirmPassword.message}
+              </Text>
+            )}
+          </View>
+
+          {/* Güvenlik Sorusu (Dropdown) */}
+          <View className="mb-8">
+            <Text className="text-[#64FFDA] mb-3 text-lg">Güvenlik Sorusu</Text>
+            <Controller
+              control={control}
+              name="securityQuestion"
+              render={({ field: { onChange, value } }) => (
+                <View className="bg-[#1E3A8A] rounded-lg border border-[#64FFDA] overflow-hidden">
+                  <Picker
+                    selectedValue={value}
+                    onValueChange={(itemValue) => onChange(itemValue)}
+                    dropdownIconColor="#64FFDA"
+                    style={{
+                      color: "white",
+                      height: Platform.OS === "ios" ? 150 : 50,
+                      width: "100%",
+                    }}
+                    itemStyle={{
+                      color: "white",
+                      height: Platform.OS === "ios" ? 150 : 50,
+                      fontSize: 16,
+                    }}
+                  >
+                    <Picker.Item
+                      label="Bir soru seçin..."
+                      value=""
+                      color={Platform.OS === "ios" ? "white" : "#f1f1f1"}
+                    />
+                    {securityQuestions.map((question, index) => (
+                      <Picker.Item
+                        key={index}
+                        label={question}
+                        value={question}
+                        color={Platform.OS === "ios" ? "white" : "#f1f1f1"}
+                      />
+                    ))}
+                  </Picker>
+                </View>
+              )}
+            />
+            {errors.securityQuestion && (
+              <Text className="text-red-500 mt-2">
+                {errors.securityQuestion.message}
+              </Text>
+            )}
+          </View>
+
+          {/* Güvenlik Cevabı */}
+          <View className="mb-8">
+            <Text className="text-[#64FFDA] mb-3 text-lg">Cevabınız</Text>
+            <Controller
+              control={control}
+              name="securityAnswer"
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  className="bg-[#1E3A8A] text-white p-4 rounded-lg border border-[#64FFDA]"
+                  placeholder="Cevabınızı giriniz"
+                  placeholderTextColor="#f1f1f1"
+                  value={value}
+                  onChangeText={onChange}
+                />
+              )}
+            />
+            {errors.securityAnswer && (
+              <Text className="text-red-500 mt-2">
+                {errors.securityAnswer.message}
+              </Text>
+            )}
+          </View>
+
+          <TouchableOpacity
+            onPress={handleSubmit(onSubmit)}
+            className="bg-[#64FFDA] py-5 rounded-lg"
+          >
+            <Text className="text-[#0A192F] text-center font-bold text-lg">
+              Hesap Oluştur
+            </Text>
+          </TouchableOpacity>
+        </MotiView>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
