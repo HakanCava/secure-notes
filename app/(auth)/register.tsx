@@ -20,25 +20,18 @@ import {
 } from "react-native";
 import * as z from "zod";
 
-// Form validation schema
-const registerSchema = z
-  .object({
-    username: z.string().min(3, "Kullanıcı adı en az 3 karakter olmalı"),
-    password: z
-      .string()
-      .min(8, "Şifre en az 8 karakter olmalı")
-      .regex(/[A-Z]/, "En az bir büyük harf içermeli")
-      .regex(/[a-z]/, "En az bir küçük harf içermeli")
-      .regex(/[0-9]/, "En az bir sayı içermeli")
-      .regex(/[^A-Za-z0-9]/, "En az bir özel karakter içermeli"),
-    confirmPassword: z.string(),
-    securityQuestion: z.string().min(1, "Lütfen bir güvenlik sorusu seçin"),
-    securityAnswer: z.string().min(1, "Cevap zorunludur"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Şifreler uyuşmuyor",
-    path: ["confirmPassword"],
-  });
+const registerSchema = z.object({
+  username: z.string().min(3, "Kullanıcı adı en az 3 karakter olmalı"),
+  password: z
+    .string()
+    .min(8, "Şifre en az 8 karakter olmalı")
+    .regex(/[A-Z]/, "En az bir büyük harf içermeli")
+    .regex(/[a-z]/, "En az bir küçük harf içermeli")
+    .regex(/[0-9]/, "En az bir sayı içermeli")
+    .regex(/[^A-Za-z0-9]/, "En az bir özel karakter içermeli"),
+  securityQuestion: z.string().min(1, "Lütfen bir güvenlik sorusu seçin"),
+  securityAnswer: z.string().min(1, "Cevap zorunludur"),
+});
 
 type RegisterForm = z.infer<typeof registerSchema>;
 
@@ -46,7 +39,6 @@ export default function RegisterScreen() {
   const router = useRouter();
   const screenHeight = Dimensions.get("window").height;
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const securityQuestions = [
     "İlk evcil hayvanınızın adı nedir?",
@@ -65,7 +57,6 @@ export default function RegisterScreen() {
     defaultValues: {
       username: "",
       password: "",
-      confirmPassword: "",
       securityQuestion: "",
       securityAnswer: "",
     },
@@ -98,7 +89,6 @@ export default function RegisterScreen() {
         }}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Header */}
         <View className="flex-row items-center mb-12">
           <Image
             source={require("../../assets/images/splash-icon.jpg")}
@@ -116,14 +106,12 @@ export default function RegisterScreen() {
           </View>
         </View>
 
-        {/* Form */}
         <MotiView
           from={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ type: "timing", duration: 800, delay: 300 }}
           className="bg-[#112240] p-8 rounded-xl shadow-lg"
         >
-          {/* Username */}
           <View className="mb-8">
             <Text className="text-[#64FFDA] mb-3 text-lg">Kullanıcı Adı</Text>
             <Controller
@@ -146,7 +134,6 @@ export default function RegisterScreen() {
             )}
           </View>
 
-          {/* Password */}
           <View className="mb-8">
             <Text className="text-[#64FFDA] mb-3 text-lg">Şifre</Text>
             <View className="relative">
@@ -185,46 +172,6 @@ export default function RegisterScreen() {
             )}
           </View>
 
-          {/* Confirm Password */}
-          <View className="mb-8">
-            <Text className="text-[#64FFDA] mb-3 text-lg">Şifreyi Onayla</Text>
-            <View className="relative">
-              <Controller
-                control={control}
-                name="confirmPassword"
-                render={({ field: { onChange, value } }) => (
-                  <TextInput
-                    className="bg-[#1E3A8A] text-white p-4 rounded-lg border border-[#64FFDA] pr-12"
-                    placeholder="Şifreyi tekrar girin"
-                    placeholderTextColor="#f1f1f1"
-                    secureTextEntry={!showConfirmPassword}
-                    value={value}
-                    onChangeText={onChange}
-                    autoCapitalize="none"
-                    style={{ color: "white" }}
-                    autoCorrect={false}
-                  />
-                )}
-              />
-              <TouchableOpacity
-                onPress={() => setShowConfirmPassword((prev) => !prev)}
-                className="absolute right-4 top-4"
-              >
-                <Ionicons
-                  name={showConfirmPassword ? "eye-off" : "eye"}
-                  size={24}
-                  color="#64FFDA"
-                />
-              </TouchableOpacity>
-            </View>
-            {errors.confirmPassword && (
-              <Text className="text-red-500 mt-2">
-                {errors.confirmPassword.message}
-              </Text>
-            )}
-          </View>
-
-          {/* Güvenlik Sorusu (Dropdown) */}
           <View className="mb-8">
             <Text className="text-[#64FFDA] mb-3 text-lg">Güvenlik Sorusu</Text>
             <Controller
