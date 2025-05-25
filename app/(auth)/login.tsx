@@ -8,7 +8,6 @@ import { MotiView } from "moti";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
-  Alert,
   Dimensions,
   Image,
   KeyboardAvoidingView,
@@ -19,6 +18,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Toast from "react-native-toast-message";
 import * as z from "zod";
 
 const loginSchema = z.object({
@@ -57,9 +57,18 @@ export default function LoginScreen() {
     try {
       const userPin = await AsyncStorage.getItem("secure_user_pin");
       if (userPin === data.password) {
+        Toast.show({
+          type: "success",
+          text1: "Giriş başarılı",
+          text2: `Hoşgeldin ${username}`,
+        });
         router.push("/");
       } else {
-        Alert.alert("Hatalı Şifre");
+        Toast.show({
+          type: "error",
+          text1: "Hatalı şifre",
+          text2: "Lütfen tekrar deneyin",
+        });
       }
 
       router.push("/");

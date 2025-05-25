@@ -11,6 +11,8 @@ import "react-native-reanimated";
 import "../app/global.css";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { Text, View } from "react-native";
+import Toast from "react-native-toast-message";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -27,6 +29,38 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Slot />
       <StatusBar style="auto" />
+      <Toast
+        config={{
+          success: ({ text1, text2, ...rest }) => (
+            <View
+              style={{
+                backgroundColor: "#64FFDA",
+                padding: 16,
+                borderRadius: 8,
+              }}
+            >
+              <Text style={{ fontWeight: "bold", color: "#0A192F" }}>
+                {text1}
+              </Text>
+              <Text style={{ color: "#0A192F" }}>{text2}</Text>
+            </View>
+          ),
+          error: ({ text1, text2, ...rest }) => (
+            <View
+              style={{
+                backgroundColor: "#EF4444",
+                padding: 16,
+                borderRadius: 8,
+              }}
+            >
+              <Text style={{ fontWeight: "bold", color: "white" }}>
+                {text1}
+              </Text>
+              <Text style={{ color: "white" }}>{text2}</Text>
+            </View>
+          ),
+        }}
+      />
     </ThemeProvider>
   );
 }
