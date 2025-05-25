@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { Image, View } from "react-native";
-import TextScramble from "./components/TextScramble";
+import TextScramble from "../components/ui/text-scramble";
 
 export default function SplashScreen() {
   const router = useRouter();
@@ -13,11 +13,11 @@ export default function SplashScreen() {
         // Wait for 3 seconds for splash animation
         await new Promise((resolve) => setTimeout(resolve, 3000));
 
-        const userPin = await AsyncStorage.getItem("userPin");
+        const userPin = await AsyncStorage.getItem("secure_user_pin");
         if (userPin) {
           router.push("/login");
         } else {
-          //router.push("/register");
+          router.push("/register");
         }
       } catch (error) {
         console.error("Error checking user pin:", error);
