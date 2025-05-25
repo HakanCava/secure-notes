@@ -1,10 +1,11 @@
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
+import { useAuth } from "@/store/use-auth";
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { MotiView } from "moti";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   Alert,
@@ -21,7 +22,7 @@ import {
 import * as z from "zod";
 
 const loginSchema = z.object({
-  password: z.string(),
+  password: z.string().min(1, "Şifre zorunludur"),
 });
 
 type LoginForm = z.infer<typeof loginSchema>;
@@ -30,6 +31,8 @@ export default function LoginScreen() {
   const router = useRouter();
   const screenHeight = Dimensions.get("window").height;
   const [showPassword, setShowPassword] = useState(false);
+
+  const { username, setUsername } = useAuth();
 
   const {
     control,
@@ -41,6 +44,14 @@ export default function LoginScreen() {
       password: "",
     },
   });
+
+  useEffect(() => {
+    const fetchUsername = async () => {
+      const storedUsername = await AsyncStorage.getItem("secure_username");
+      setUsername(storedUsername);
+    };
+    fetchUsername();
+  }, []);
 
   const onSubmit = async (data: LoginForm) => {
     try {
@@ -95,8 +106,11 @@ export default function LoginScreen() {
           transition={{ type: "timing", duration: 800, delay: 300 }}
           className="bg-[#112240] p-8 rounded-xl shadow-lg"
         >
+          <Text className="text-[#64FFDA] mb-3 text-3xl font-bold">
+            Hoşgeldin {username}
+          </Text>
           <View className="mb-8">
-            <Text className="text-[#64FFDA] mb-3 text-lg">Şifre</Text>
+            <Text className="text-[#64FFDA] mb-3 text-xl">Şifre</Text>
             <View className="relative">
               <Controller
                 control={control}
