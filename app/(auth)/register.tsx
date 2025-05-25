@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 import { MotiView } from "moti";
 import { Controller, useForm } from "react-hook-form";
 import {
+  Dimensions,
   Image,
   ScrollView,
   Text,
@@ -39,6 +40,8 @@ type RegisterForm = z.infer<typeof registerSchema>;
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const screenHeight = Dimensions.get("window").height;
+
   const {
     control,
     handleSubmit,
@@ -63,112 +66,113 @@ export default function RegisterScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-[#0A192F]">
-      <MotiView
-        className="flex-1 p-6"
-        from={{ opacity: 0, translateY: 50 }}
-        animate={{ opacity: 1, translateY: 0 }}
-        transition={{ type: "timing", duration: 1000 }}
-      >
-        {/* Header */}
-        <View className="flex-row items-center mb-10 mt-6">
-          <Image
-            source={require("../../assets/images/splash-icon.jpg")}
-            style={{ width: 50, height: 50 }}
-            className="rounded-full"
-            resizeMode="cover"
+    <ScrollView
+      className="flex-1 bg-[#0A192F]"
+      contentContainerStyle={{
+        flexGrow: 1,
+        justifyContent: "center",
+        paddingHorizontal: 24,
+        paddingTop: screenHeight * 0.1, // 10% from top
+        paddingBottom: 40,
+      }}
+    >
+      {/* Header */}
+      <View className="flex-row items-center mb-12">
+        <Image
+          source={require("../../assets/images/splash-icon.jpg")}
+          style={{ width: 60, height: 60 }}
+          className="rounded-full"
+          resizeMode="cover"
+        />
+        <View className="ml-4 flex-1">
+          <TextGenerateEffect
+            text="Register"
+            typingSpeed={100}
+            erasingSpeed={75}
+            delayBeforeErasing={2000}
           />
-          <View className="ml-4 flex-1">
-            <TextGenerateEffect text="Register" />
-          </View>
+        </View>
+      </View>
+
+      {/* Form */}
+      <MotiView
+        from={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ type: "timing", duration: 800, delay: 300 }}
+        className="bg-[#112240] p-8 rounded-xl shadow-lg"
+      >
+        <View className="mb-8">
+          <Text className="text-[#64FFDA] mb-3 text-lg">Username</Text>
+          <Controller
+            control={control}
+            name="username"
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                className="bg-[#1E3A8A] text-white p-4 rounded-lg border border-[#64FFDA]"
+                placeholder="Enter username"
+                placeholderTextColor="#f1f1f1"
+                value={value}
+                onChangeText={onChange}
+              />
+            )}
+          />
+          {errors.username && (
+            <Text className="text-red-500 mt-2">{errors.username.message}</Text>
+          )}
         </View>
 
-        {/* Form */}
-        <MotiView
-          from={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ type: "timing", duration: 800, delay: 300 }}
-          className="bg-[#112240] p-6 rounded-xl shadow-lg"
+        <View className="mb-8">
+          <Text className="text-[#64FFDA] mb-3 text-lg">Password</Text>
+          <Controller
+            control={control}
+            name="password"
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                className="bg-[#1E3A8A] text-white p-4 rounded-lg border border-[#64FFDA]"
+                placeholder="Enter password"
+                placeholderTextColor="#f1f1f1"
+                secureTextEntry
+                value={value}
+                onChangeText={onChange}
+              />
+            )}
+          />
+          {errors.password && (
+            <Text className="text-red-500 mt-2">{errors.password.message}</Text>
+          )}
+        </View>
+
+        <View className="mb-10">
+          <Text className="text-[#64FFDA] mb-3 text-lg">Confirm Password</Text>
+          <Controller
+            control={control}
+            name="confirmPassword"
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                className="bg-[#1E3A8A] text-white p-4 rounded-lg border border-[#64FFDA]"
+                placeholder="Confirm password"
+                placeholderTextColor="#f1f1f1"
+                secureTextEntry
+                value={value}
+                onChangeText={onChange}
+              />
+            )}
+          />
+          {errors.confirmPassword && (
+            <Text className="text-red-500 mt-2">
+              {errors.confirmPassword.message}
+            </Text>
+          )}
+        </View>
+
+        <TouchableOpacity
+          onPress={handleSubmit(onSubmit)}
+          className="bg-[#64FFDA] py-5 rounded-lg"
         >
-          <View className="mb-6">
-            <Text className="text-[#64FFDA] mb-2 text-lg">Username</Text>
-            <Controller
-              control={control}
-              name="username"
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  className="bg-[#1E3A8A] text-white p-4 rounded-lg border border-[#64FFDA]"
-                  placeholder="Enter username"
-                  placeholderTextColor="#4A5568"
-                  value={value}
-                  onChangeText={onChange}
-                />
-              )}
-            />
-            {errors.username && (
-              <Text className="text-red-500 mt-1">
-                {errors.username.message}
-              </Text>
-            )}
-          </View>
-
-          <View className="mb-6">
-            <Text className="text-[#64FFDA] mb-2 text-lg">Password</Text>
-            <Controller
-              control={control}
-              name="password"
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  className="bg-[#1E3A8A] text-white p-4 rounded-lg border border-[#64FFDA]"
-                  placeholder="Enter password"
-                  placeholderTextColor="#4A5568"
-                  secureTextEntry
-                  value={value}
-                  onChangeText={onChange}
-                />
-              )}
-            />
-            {errors.password && (
-              <Text className="text-red-500 mt-1">
-                {errors.password.message}
-              </Text>
-            )}
-          </View>
-
-          <View className="mb-8">
-            <Text className="text-[#64FFDA] mb-2 text-lg">
-              Confirm Password
-            </Text>
-            <Controller
-              control={control}
-              name="confirmPassword"
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  className="bg-[#1E3A8A] text-white p-4 rounded-lg border border-[#64FFDA]"
-                  placeholder="Confirm password"
-                  placeholderTextColor="#4A5568"
-                  secureTextEntry
-                  value={value}
-                  onChangeText={onChange}
-                />
-              )}
-            />
-            {errors.confirmPassword && (
-              <Text className="text-red-500 mt-1">
-                {errors.confirmPassword.message}
-              </Text>
-            )}
-          </View>
-
-          <TouchableOpacity
-            onPress={handleSubmit(onSubmit)}
-            className="bg-[#64FFDA] py-4 rounded-lg"
-          >
-            <Text className="text-[#0A192F] text-center font-bold text-lg">
-              Create Account
-            </Text>
-          </TouchableOpacity>
-        </MotiView>
+          <Text className="text-[#0A192F] text-center font-bold text-lg">
+            Create Account
+          </Text>
+        </TouchableOpacity>
       </MotiView>
     </ScrollView>
   );
