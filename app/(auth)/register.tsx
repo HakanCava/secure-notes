@@ -218,7 +218,6 @@ export default function RegisterScreen() {
             )}
           </View>
 
-          {/* Güvenlik Cevabı */}
           <View className="mb-8">
             <Text className="text-[#64FFDA] mb-3 text-lg">Cevabınız</Text>
             <Controller
@@ -243,7 +242,7 @@ export default function RegisterScreen() {
 
           <TouchableOpacity
             onPress={handleSubmit(onSubmit)}
-            className="bg-[#64FFDA] py-5 rounded-lg"
+            className="bg-[#64FFDA] p-4 rounded-lg"
           >
             <Text className="text-[#0A192F] text-center font-bold text-lg">
               Hesap Oluştur
