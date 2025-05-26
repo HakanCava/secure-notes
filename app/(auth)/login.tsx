@@ -62,7 +62,7 @@ export default function LoginScreen() {
           text1: "Giriş başarılı",
           text2: `Hoşgeldin ${username}`,
         });
-        router.push("/");
+        router.push("/home");
       } else {
         Toast.show({
           type: "error",
@@ -70,8 +70,6 @@ export default function LoginScreen() {
           text2: "Lütfen tekrar deneyin",
         });
       }
-
-      router.push("/");
     } catch (error) {
       console.error("Giriş hatası:", error);
     }
