@@ -1,9 +1,9 @@
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import { MotiView } from "moti";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -64,10 +64,13 @@ export default function RegisterScreen() {
 
   const onSubmit = async (data: RegisterForm) => {
     try {
-      await AsyncStorage.setItem("secure_user_pin", data.password);
-      await AsyncStorage.setItem("secure_username", data.username);
-      await AsyncStorage.setItem("security_question", data.securityQuestion);
-      await AsyncStorage.setItem("security_answer", data.securityAnswer);
+      await SecureStore.setItemAsync("secure_user_pin", data.password);
+      await SecureStore.setItemAsync("secure_username", data.username);
+      await SecureStore.setItemAsync(
+        "security_question",
+        data.securityQuestion
+      );
+      await SecureStore.setItemAsync("security_answer", data.securityAnswer);
       router.push("/login");
     } catch (error) {
       console.error("Kayıt hatası:", error);

@@ -2,8 +2,8 @@ import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { useAuth } from "@/store/use-auth";
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import { MotiView } from "moti";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -47,7 +47,7 @@ export default function LoginScreen() {
 
   useEffect(() => {
     const fetchUsername = async () => {
-      const storedUsername = await AsyncStorage.getItem("secure_username");
+      const storedUsername = await SecureStore.getItemAsync("secure_username");
       setUsername(storedUsername);
     };
     fetchUsername();
@@ -55,7 +55,7 @@ export default function LoginScreen() {
 
   const onSubmit = async (data: LoginForm) => {
     try {
-      const userPin = await AsyncStorage.getItem("secure_user_pin");
+      const userPin = await SecureStore.getItemAsync("secure_user_pin");
       if (userPin === data.password) {
         Toast.show({
           type: "success",
