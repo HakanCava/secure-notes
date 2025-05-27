@@ -1,3 +1,4 @@
+import { useAuth } from "@/store/use-auth";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { MotiView } from "moti";
@@ -18,6 +19,7 @@ import { useNotes } from "../../store/use-notes";
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { username } = useAuth();
   const { notes, addNote, loadNotes } = useNotes();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [noteTitle, setNoteTitle] = useState("");
@@ -37,11 +39,6 @@ export default function HomeScreen() {
       setNoteContent("");
       setIsModalVisible(false);
     }
-  };
-
-  const navigateToSettings = () => {
-    // @ts-ignore
-    router.push("settings");
   };
 
   return (
@@ -65,12 +62,11 @@ export default function HomeScreen() {
           <Text className="text-[#64FFDA] text-xl font-semibold">Notlar</Text>
         </View>
 
-        <TouchableOpacity
-          onPress={navigateToSettings}
-          className="w-10 h-10 items-center justify-center"
-        >
-          <Ionicons name="settings-outline" size={24} color="#64FFDA" />
-        </TouchableOpacity>
+        <View className="flex w-10 h-10 rounded-full bg-[#112240] border border-[#64FFDA] items-center justify-center">
+          <Text className="text-[#64FFDA]  text-xl font-semibold">
+            {username?.charAt(0).toUpperCase()}
+          </Text>
+        </View>
       </MotiView>
 
       <ScrollView className="flex-1 p-4">
