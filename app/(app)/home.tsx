@@ -1,4 +1,3 @@
-import { useAuth } from "@/store/use-auth";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { MotiView } from "moti";
@@ -15,11 +14,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useNotes } from "../../store/use-notes";
+import { useNotes } from "../../store/useNotes";
+
+const MAX_CONTENT_LENGTH = 100;
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { username } = useAuth();
   const { notes, addNote, loadNotes } = useNotes();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [noteTitle, setNoteTitle] = useState("");
@@ -39,6 +39,11 @@ export default function HomeScreen() {
       setNoteContent("");
       setIsModalVisible(false);
     }
+  };
+
+  const navigateToSettings = () => {
+    // @ts-ignore
+    router.push("settings");
   };
 
   return (
@@ -62,11 +67,12 @@ export default function HomeScreen() {
           <Text className="text-[#64FFDA] text-xl font-semibold">Notlar</Text>
         </View>
 
-        <View className="flex w-10 h-10 rounded-full bg-[#112240] border border-[#64FFDA] items-center justify-center">
-          <Text className="text-[#64FFDA]  text-xl font-semibold">
-            {username?.charAt(0).toUpperCase()}
-          </Text>
-        </View>
+        <TouchableOpacity
+          onPress={navigateToSettings}
+          className="w-10 h-10 items-center justify-center"
+        >
+          <Ionicons name="settings-outline" size={24} color="#64FFDA" />
+        </TouchableOpacity>
       </MotiView>
 
       <ScrollView className="flex-1 p-4">
@@ -86,21 +92,44 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
         ) : (
-          <View className="space-y-4 gap-4">
+          <View className="space-y-4">
             {notes.map((note) => (
               <MotiView
                 key={note.id}
                 from={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="bg-[#112240] p-4 rounded-lg"
+                transition={{ type: "spring", damping: 15 }}
               >
-                <Text className="text-[#64FFDA] text-lg font-semibold mb-2">
-                  {note.title}
-                </Text>
-                <Text className="text-white">{note.content}</Text>
-                <Text className="text-gray-400 text-sm mt-2">
-                  {new Date(note.createdAt).toLocaleDateString("tr-TR")}
-                </Text>
+                <TouchableOpacity
+                  onPress={() => router.push(`/note-detail?id=${note.id}`)}
+                  className="bg-[#112240] p-4 rounded-lg border border-[#1E3A8A]"
+                >
+                  <View className="flex-row justify-between items-start">
+                    <View className="flex-1">
+                      <Text className="text-[#64FFDA] text-lg font-semibold mb-2">
+                        {note.title}
+                      </Text>
+                      <Text className="text-white mb-3" numberOfLines={2}>
+                        {note.content.length > MAX_CONTENT_LENGTH
+                          ? `${note.content.substring(
+                              0,
+                              MAX_CONTENT_LENGTH
+                            )}...`
+                          : note.content}
+                      </Text>
+                      <Text className="text-gray-400 text-sm">
+                        {new Date(note.createdAt).toLocaleDateString("tr-TR")}
+                      </Text>
+                    </View>
+                    <View className="ml-4">
+                      <Ionicons
+                        name="chevron-forward"
+                        size={24}
+                        color="#64FFDA"
+                      />
+                    </View>
+                  </View>
+                </TouchableOpacity>
               </MotiView>
             ))}
           </View>
