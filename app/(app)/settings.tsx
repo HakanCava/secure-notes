@@ -17,13 +17,11 @@ export default function SettingsScreen() {
 
   const handleLogout = async () => {
     try {
-      // Tüm güvenli depolanmış verileri temizle
       await SecureStore.deleteItemAsync("secure_user_pin");
       await SecureStore.deleteItemAsync("secure_username");
       await SecureStore.deleteItemAsync("security_question");
       await SecureStore.deleteItemAsync("security_answer");
 
-      // Login sayfasına yönlendir
       router.replace("/(auth)/login");
     } catch (error) {
       console.error("Çıkış yapılırken hata oluştu:", error);
