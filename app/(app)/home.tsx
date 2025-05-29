@@ -1,5 +1,6 @@
 import { useAuth } from "@/store/use-auth";
 import { Ionicons } from "@expo/vector-icons";
+import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
 import { MotiView } from "moti";
 import { useEffect, useState } from "react";
@@ -16,8 +17,6 @@ import {
   View,
 } from "react-native";
 import { useNotes } from "../../store/useNotes";
-
-const MAX_CONTENT_LENGTH = 100;
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -88,10 +87,12 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
         ) : (
-          <View className="space-y-4">
-            {notes.map((note) => (
+          <FlashList
+            data={notes}
+            keyExtractor={(item) => item.id.toString()}
+            estimatedItemSize={100}
+            renderItem={({ item: note }) => (
               <MotiView
-                key={note.id}
                 from={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ type: "spring", damping: 15 }}
@@ -100,18 +101,11 @@ export default function HomeScreen() {
                   onPress={() => router.push(`/note-detail?id=${note.id}`)}
                   className="bg-[#112240] p-4 rounded-lg border border-[#1E3A8A]"
                 >
-                  <View className="flex-row justify-between items-center">
+                  <View className="flex-row justify-between items-center gap-2">
+                    <Ionicons name="document-text" size={48} color="#64FFDA" />
                     <View className="flex-1 mr-4">
                       <Text className="text-[#64FFDA] text-lg font-semibold mb-2">
                         {note.title}
-                      </Text>
-                      <Text className="text-white mb-3" numberOfLines={2}>
-                        {note.content.length > MAX_CONTENT_LENGTH
-                          ? `${note.content.substring(
-                              0,
-                              MAX_CONTENT_LENGTH
-                            )}...`
-                          : note.content}
                       </Text>
                       <Text className="text-gray-400 text-sm">
                         {new Date(note.createdAt).toLocaleDateString("tr-TR")}
@@ -127,8 +121,9 @@ export default function HomeScreen() {
                   </View>
                 </TouchableOpacity>
               </MotiView>
-            ))}
-          </View>
+            )}
+            ItemSeparatorComponent={() => <View style={{ height: 16 }} />} // spacing için
+          />
         )}
       </ScrollView>
 

@@ -30,7 +30,7 @@ export const useNotes = create<NotesStore>((set) => ({
     };
 
     set((state) => {
-      const updatedNotes = [...state.notes, newNote];
+      const updatedNotes = [newNote, ...state.notes];
       SecureStore.setItemAsync("notes", JSON.stringify(updatedNotes));
       return { notes: updatedNotes };
     });
