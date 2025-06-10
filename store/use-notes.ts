@@ -12,6 +12,7 @@ interface NotesStore {
   notes: Note[];
   addNote: (note: Omit<Note, "id" | "createdAt">) => Promise<void>;
   loadNotes: () => Promise<void>;
+  deleteAllNotes: () => Promise<void>;
 }
 
 export const useNotes = create<NotesStore>((set) => ({
@@ -39,6 +40,15 @@ export const useNotes = create<NotesStore>((set) => ({
       }
     } catch (error) {
       console.error("Notlar yüklenirken hata oluştu:", error);
+    }
+  },
+
+  deleteAllNotes: async () => {
+    try {
+      await SecureStore.deleteItemAsync("notes");
+      set({ notes: [] });
+    } catch (error) {
+      console.error("Notlar silinirken hata oluştu:", error);
     }
   },
 }));

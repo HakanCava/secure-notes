@@ -1,8 +1,8 @@
 import { ChangePasswordModal } from "@/components/ChangePasswordModal";
+import { DeleteAccountModal } from "@/components/DeleteAccountModal";
 import { useAuth } from "@/store/use-auth";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import { MotiView } from "moti";
 import { useState } from "react";
 import {
@@ -17,20 +17,7 @@ export default function SettingsScreen() {
   const router = useRouter();
   const { username } = useAuth();
   const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
-
-  const handleDeleteAccount = async () => {
-    try {
-      await SecureStore.deleteItemAsync("secure_user_pin");
-      await SecureStore.deleteItemAsync("secure_username");
-      await SecureStore.deleteItemAsync("security_question");
-      await SecureStore.deleteItemAsync("security_answer");
-      await SecureStore.deleteItemAsync("notes");
-
-      router.replace("/register");
-    } catch (error) {
-      console.error("Çıkış yapılırken hata oluştu:", error);
-    }
-  };
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
   return (
     <SafeAreaView className="flex-1 bg-[#0A192F]">
@@ -109,7 +96,7 @@ export default function SettingsScreen() {
               />
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={handleDeleteAccount}
+              onPress={() => setIsDeleteModalVisible(true)}
               className="flex-row items-center bg-[#FF4747]/10 p-4 rounded-lg"
             >
               <View className="w-10 h-10 rounded-full bg-[#FF4747]/20 items-center justify-center">
@@ -130,6 +117,11 @@ export default function SettingsScreen() {
       <ChangePasswordModal
         visible={isPasswordModalVisible}
         onClose={() => setIsPasswordModalVisible(false)}
+      />
+
+      <DeleteAccountModal
+        visible={isDeleteModalVisible}
+        onClose={() => setIsDeleteModalVisible(false)}
       />
     </SafeAreaView>
   );
