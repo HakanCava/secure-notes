@@ -37,18 +37,27 @@ export const useNotes = create<NotesStore>((set) => ({
       const storedNotes = await SecureStore.getItemAsync("notes");
       if (storedNotes) {
         set({ notes: JSON.parse(storedNotes) });
+      } else {
+        set({ notes: [] });
       }
     } catch (error) {
       console.error("Notlar yüklenirken hata oluştu:", error);
+      set({ notes: [] });
     }
   },
 
   deleteAllNotes: async () => {
     try {
-      await SecureStore.deleteItemAsync("notes");
       set({ notes: [] });
+      await SecureStore.deleteItemAsync("notes");
+
+      const checkNotes = await SecureStore.getItemAsync("notes");
+      if (checkNotes) {
+        await SecureStore.setItemAsync("notes", JSON.stringify([]));
+      }
     } catch (error) {
       console.error("Notlar silinirken hata oluştu:", error);
+      set({ notes: [] });
     }
   },
 }));

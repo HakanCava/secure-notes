@@ -17,11 +17,18 @@ export function DeleteAccountModal({
 
   const handleDeleteAccount = async () => {
     try {
-      await SecureStore.deleteItemAsync("secure_user_pin");
-      await SecureStore.deleteItemAsync("secure_username");
-      await SecureStore.deleteItemAsync("security_question");
-      await SecureStore.deleteItemAsync("security_answer");
       await deleteAllNotes();
+
+      const deleteOperations = [
+        SecureStore.deleteItemAsync("secure_user_pin"),
+        SecureStore.deleteItemAsync("secure_username"),
+        SecureStore.deleteItemAsync("security_question"),
+        SecureStore.deleteItemAsync("security_answer"),
+        SecureStore.deleteItemAsync("notes"),
+      ];
+
+      await Promise.all(deleteOperations);
+      await SecureStore.setItemAsync("notes", JSON.stringify([]));
 
       onClose();
       router.replace("/register");
