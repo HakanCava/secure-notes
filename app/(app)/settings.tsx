@@ -1,8 +1,10 @@
+import { ChangePasswordModal } from "@/components/ChangePasswordModal";
 import { useAuth } from "@/store/use-auth";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { MotiView } from "moti";
+import { useState } from "react";
 import {
   Image,
   SafeAreaView,
@@ -14,6 +16,7 @@ import {
 export default function SettingsScreen() {
   const router = useRouter();
   const { username } = useAuth();
+  const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -69,7 +72,10 @@ export default function SettingsScreen() {
           className="bg-[#112240] rounded-xl overflow-hidden shadow-xl"
         >
           <View className="p-4 space-y-2 gap-4">
-            <TouchableOpacity className="flex-row items-center bg-[#1E3A8A] p-4 rounded-lg">
+            <TouchableOpacity
+              onPress={() => setIsPasswordModalVisible(true)}
+              className="flex-row items-center bg-[#1E3A8A] p-4 rounded-lg"
+            >
               <View className="w-10 h-10 rounded-full bg-[#0A192F] items-center justify-center">
                 <Ionicons
                   name="lock-closed-outline"
@@ -78,21 +84,6 @@ export default function SettingsScreen() {
                 />
               </View>
               <Text className="text-white text-lg ml-4">Şifre Değiştir</Text>
-              <Ionicons
-                name="chevron-forward"
-                size={24}
-                color="#64FFDA"
-                style={{ marginLeft: "auto" }}
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity className="flex-row items-center bg-[#1E3A8A] p-4 rounded-lg">
-              <View className="w-10 h-10 rounded-full bg-[#0A192F] items-center justify-center">
-                <Ionicons name="shield-outline" size={24} color="#64FFDA" />
-              </View>
-              <Text className="text-white text-lg ml-4">
-                Güvenlik Sorusu Değiştir
-              </Text>
               <Ionicons
                 name="chevron-forward"
                 size={24}
@@ -134,6 +125,11 @@ export default function SettingsScreen() {
           </View>
         </MotiView>
       </View>
+
+      <ChangePasswordModal
+        visible={isPasswordModalVisible}
+        onClose={() => setIsPasswordModalVisible(false)}
+      />
     </SafeAreaView>
   );
 }
