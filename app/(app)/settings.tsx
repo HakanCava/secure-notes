@@ -18,14 +18,15 @@ export default function SettingsScreen() {
   const { username } = useAuth();
   const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
 
-  const handleLogout = async () => {
+  const handleDeleteAccount = async () => {
     try {
       await SecureStore.deleteItemAsync("secure_user_pin");
       await SecureStore.deleteItemAsync("secure_username");
       await SecureStore.deleteItemAsync("security_question");
       await SecureStore.deleteItemAsync("security_answer");
+      await SecureStore.deleteItemAsync("notes");
 
-      router.replace("/(auth)/login");
+      router.replace("/register");
     } catch (error) {
       console.error("Çıkış yapılırken hata oluştu:", error);
     }
@@ -108,7 +109,7 @@ export default function SettingsScreen() {
               />
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={handleLogout}
+              onPress={handleDeleteAccount}
               className="flex-row items-center bg-[#FF4747]/10 p-4 rounded-lg"
             >
               <View className="w-10 h-10 rounded-full bg-[#FF4747]/20 items-center justify-center">
