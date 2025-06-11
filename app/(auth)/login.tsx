@@ -1,3 +1,4 @@
+import { ForgotPasswordModal } from "@/components/ForgotPasswordModal";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { useAuth } from "@/store/use-auth";
 import { Ionicons } from "@expo/vector-icons";
@@ -31,6 +32,7 @@ export default function LoginScreen() {
   const router = useRouter();
   const screenHeight = Dimensions.get("window").height;
   const [showPassword, setShowPassword] = useState(false);
+  const [isForgotPasswordVisible, setIsForgotPasswordVisible] = useState(false);
 
   const { username, setUsername } = useAuth();
 
@@ -156,14 +158,26 @@ export default function LoginScreen() {
 
           <TouchableOpacity
             onPress={handleSubmit(onSubmit)}
-            className="bg-[#64FFDA] py-5 rounded-lg"
+            className="bg-[#64FFDA] py-5 rounded-lg mb-4"
           >
             <Text className="text-[#0A192F] text-center font-bold text-lg">
               Giriş Yap
             </Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => setIsForgotPasswordVisible(true)}
+            className="mb-4"
+          >
+            <Text className="text-[#64FFDA] text-center">Şifremi Unuttum</Text>
+          </TouchableOpacity>
         </MotiView>
       </ScrollView>
+
+      <ForgotPasswordModal
+        visible={isForgotPasswordVisible}
+        onClose={() => setIsForgotPasswordVisible(false)}
+      />
     </KeyboardAvoidingView>
   );
 }
