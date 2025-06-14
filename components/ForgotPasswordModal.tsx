@@ -1,5 +1,5 @@
 import * as SecureStore from "expo-secure-store";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Modal,
@@ -19,10 +19,32 @@ export function ForgotPasswordModal({
   visible,
   onClose,
 }: ForgotPasswordModalProps) {
+  const [securityQuestion, setSecurityQuestion] = useState("");
   const [securityAnswer, setSecurityAnswer] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
+
+  useEffect(() => {
+    const fetchSecurityQuestion = async () => {
+      try {
+        const question = await SecureStore.getItemAsync("security_question");
+        if (question) {
+          setSecurityQuestion(question);
+        }
+      } catch (error) {
+        Toast.show({
+          type: "error",
+          text1: "Hata",
+          text2: "Güvenlik sorusu yüklenirken bir sorun oluştu",
+        });
+      }
+    };
+
+    if (visible) {
+      fetchSecurityQuestion();
+    }
+  }, [visible]);
 
   const handleVerifyAnswer = async () => {
     try {
@@ -69,15 +91,23 @@ export function ForgotPasswordModal({
       setStep(1);
       setSecurityAnswer("");
       setNewPassword("");
-    } catch (error) {
+    } catch (err) {
       Toast.show({
         type: "error",
         text1: "Hata",
-        text2: "Şifre güncellenirken bir sorun oluştu",
+        text2:
+          (err as Error).message || "Şifre güncellenirken bir sorun oluştu",
       });
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleClose = () => {
+    onClose();
+    setStep(1);
+    setSecurityAnswer("");
+    setNewPassword("");
   };
 
   return (
@@ -90,9 +120,7 @@ export function ForgotPasswordModal({
 
           {step === 1 && (
             <>
-              <Text className="text-[#64FFDA] mb-2">
-                İlk evcil hayvanınızın adı nedir?
-              </Text>
+              <Text className="text-[#64FFDA] mb-2">{securityQuestion}</Text>
               <TextInput
                 placeholder="Güvenlik Sorusu Cevabı"
                 placeholderTextColor="#64FFDA"
@@ -146,15 +174,7 @@ export function ForgotPasswordModal({
             </>
           )}
 
-          <TouchableOpacity
-            onPress={() => {
-              onClose();
-              setStep(1);
-              setSecurityAnswer("");
-              setNewPassword("");
-            }}
-            className="mt-4"
-          >
+          <TouchableOpacity onPress={handleClose} className="mt-4">
             <Text className="text-[#64FFDA] text-center">Vazgeç</Text>
           </TouchableOpacity>
         </View>
